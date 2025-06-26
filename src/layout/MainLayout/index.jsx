@@ -1,68 +1,77 @@
-import { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+  import { useEffect } from 'react';
+  import { Outlet } from 'react-router-dom';
 
-// material-ui
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Box from '@mui/material/Box';
+  // material-ui
+  import { useTheme } from '@mui/material/styles';
+  import useMediaQuery from '@mui/material/useMediaQuery';
+  import AppBar from '@mui/material/AppBar';
+  import Toolbar from '@mui/material/Toolbar';
+  import Box from '@mui/material/Box';
 
-// project imports
-import Footer from './Footer';
-import Header from './Header';
-import Sidebar from './Sidebar';
-import MainContentStyled from './MainContentStyled';
-import Customization from '../Customization';
-import Loader from '../../ui-component/Loader';
-import Breadcrumbs from '../../ui-component/extended/Breadcrumbs';
+  // project imports
+  import Footer from './Footer';
+  import Header from './Header';
+  import Sidebar from './Sidebar';
+  import MainContentStyled from './MainContentStyled';
+  import Customization from '../Customization';
+  import Loader from '../../ui-component/Loader';
+  import Breadcrumbs from '../../ui-component/extended/Breadcrumbs';
 
-import useConfig from '../../hooks/useConfig';
-import { handlerDrawerOpen, useGetMenuMaster } from '../../api/menu';
+  import useConfig from '../../hooks/useConfig';
+  import { handlerDrawerOpen, useGetMenuMaster } from '../../api/menu';
 
-// ==============================|| MAIN LAYOUT ||============================== //
+  // ==============================|| MAIN LAYOUT ||============================== //
 
-export default function MainLayout() {
-  const theme = useTheme();
-  const downMD = useMediaQuery(theme.breakpoints.down('md'));
+  export default function MainLayout() {
+    const theme = useTheme();
+    const downMD = useMediaQuery(theme.breakpoints.down('md'));
 
-  const { borderRadius, miniDrawer } = useConfig();
-  const { menuMaster, menuMasterLoading } = useGetMenuMaster();
-  const drawerOpen = menuMaster?.isDashboardDrawerOpened;
+    const { borderRadius, miniDrawer } = useConfig();
+    const { menuMaster, menuMasterLoading } = useGetMenuMaster();
+    const drawerOpen = menuMaster?.isDashboardDrawerOpened;
 
-  useEffect(() => {
-    handlerDrawerOpen(!miniDrawer);
-  }, [miniDrawer]);
+    useEffect(() => {
+      handlerDrawerOpen(!miniDrawer);
+    }, [miniDrawer]);
 
-  useEffect(() => {
-    downMD && handlerDrawerOpen(false);
-  }, [downMD]);
+    useEffect(() => {
+      downMD && handlerDrawerOpen(false);
+    }, [downMD]);
 
-  // horizontal menu-list bar : drawer
+    // horizontal menu-list bar : drawer
 
-  if (menuMasterLoading) return <Loader />;
+    if (menuMasterLoading) return <Loader />;
 
-  return (
-    <Box sx={{ display: 'flex' }}>
-      {/* header */}
-      <AppBar enableColorOnDark position="fixed" color="inherit" elevation={0} sx={{ bgcolor: 'background.default' }}>
-        <Toolbar sx={{ p: 2 }}>
-          <Header />
-        </Toolbar>
-      </AppBar>
+    return (
+      <Box sx={{ display: 'flex' }}>
+        {/* header */}
+        <AppBar enableColorOnDark position="fixed" color="inherit" elevation={0} sx={{ bgcolor: 'background.default' }}>
+          <Toolbar sx={{ p: 2 }}>
+            <Header />
+          </Toolbar>
+        </AppBar>
 
-      {/* menu / drawer */}
-      <Sidebar />
+        {/* menu / drawer */}
+        <Sidebar />
 
-      {/* main content */}
-      <MainContentStyled {...{ borderRadius, open: drawerOpen }}>
-        <Box sx={{ ...{ px: { xs: 0 } }, minHeight: 'calc(100vh - 128px)', display: 'flex', flexDirection: 'column' }}>
-          {/* breadcrumb */}
-          <Breadcrumbs />
-          <Outlet />
-          {/*<Footer />*/}
-        </Box>
-      </MainContentStyled>
-    </Box>
-  );
-}
+        {/* main content */}
+        <MainContentStyled {...{ borderRadius, open: drawerOpen }}>
+          <Box sx={{ ...{ px: { xs: 0 } }, minHeight: 'calc(100vh - 128px)', display: 'flex', flexDirection: 'column' }}>
+            {/* breadcrumb */}
+            {/*      <Breadcrumbs />*/}
+              <Box
+                  sx={{
+                      position: 'sticky',
+                      top: '65px',
+                      paddingY: '16px',
+                  }}
+              >
+                  <Breadcrumbs />
+              </Box>
+            <Outlet />
+            {/*<Footer />*/}
+          </Box>
+        </MainContentStyled>
+      </Box>
+    );
+  }
