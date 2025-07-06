@@ -1,5 +1,5 @@
 // assets
-import { IconFileAnalytics, IconMailCode, IconDeviceDesktopAnalytics, IconSettingsCog } from '@tabler/icons-react';
+import { IconFileAnalytics, IconMailCode, IconDeviceDesktopAnalytics, IconSettingsCog, IconMailPlus} from '@tabler/icons-react';
 
 // constant
 const icons = {
@@ -7,6 +7,7 @@ const icons = {
   IconMailCode,
   IconDeviceDesktopAnalytics,
   IconSettingsCog,
+  IconMailPlus
 };
 
 // ==============================|| UTILITIES MENU ITEMS ||============================== //
@@ -38,11 +39,18 @@ const system = {
       icon: icons.IconSettingsCog,
       children: [
         {
-          id: 'settings-email',
-          title: 'Modelos de E-mail',
+          id: 'settings-email-list',
+          title: 'Listar modelos de E-mail',
           type: 'item',
           icon: icons.IconMailCode,
-          url: '/settings/email',
+          url: '/settings/email/list',
+        },
+        {
+          id: 'settings-email-new',
+          title: 'Criar novo modelo de E-mail',
+          type: 'item',
+          icon: icons.IconMailPlus,
+          url: '/settings/email/new',
         },
       ]
     }

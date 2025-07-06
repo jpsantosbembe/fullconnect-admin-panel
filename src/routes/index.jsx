@@ -10,6 +10,11 @@ import ProtectedRoute from './ProtectedRoute';
 import Select2faMethodPage from "../pages/authentication/Select2faMethod.jsx";
 import VerifyCodePage from "../pages/authentication/VerifyCodePage.jsx";
 import AuditLogsPage from "../views/system/AuditLogs/index.jsx";
+import UserListPage from "../views/system/UserManagement/UserListPage.jsx";
+import UserCreatePage from "../views/system/UserManagement/UserCreatePage.jsx";
+import EmailListPage from "../views/system/EmailTemplates/EmailListPage.jsx";
+import EmailEditPage from "../views/system/EmailTemplates/EmailEditPage.jsx";
+import EmailCreatePage from "../views/system/EmailTemplates/EmailCreatePage.jsx";
 
 const router = createBrowserRouter([
     {
@@ -40,6 +45,32 @@ const router = createBrowserRouter([
                         path: 'log/list', // This URL matches the existing menu item
                         element: <AuditLogsPage />, // The AuditLogsPage will now render inside MainLayout's Outlet
                     },
+                    {
+                        path: 'users/list', // NOVA ROTA: Para a página de listagem de usuários
+                        element: <UserListPage />, // O componente UserListPage será renderizado
+                    },
+                    {
+                        path: 'users/add',
+                        element: <UserCreatePage />,
+                    },
+                    {
+                        path: 'settings/email/list',
+                        element: <EmailListPage />,
+                    },
+                    {
+                        path: 'settings/email/new',
+                        element: <EmailCreatePage />,
+                    },
+                    {
+                        path: 'settings/email/edit/:id',
+                        element: <EmailEditPage />,
+                    },
+                    // Redirecionamento para compatibilidade com URLs existentes
+                    {
+                        path: 'settings/email',
+                        element: <EmailListPage />,
+                    },
+
                     // Add other protected routes here that should use MainLayout
                 ],
             },

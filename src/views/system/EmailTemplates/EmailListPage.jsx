@@ -1,10 +1,7 @@
-// src/views/system/AuditLogs/index.jsx
 import React, { useEffect, useState, useRef } from 'react';
 
 // material-ui
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 
@@ -12,9 +9,8 @@ import { useTheme } from '@mui/material/styles';
 import MainCard from '../../../ui-component/cards/MainCard';
 import FilterAndPaginationBar from '../../../ui-component/FilterAndPaginationBar';
 import DataDisplayArea from '../../../ui-component/DataDisplayArea';
-import { gridSpacing } from '../../../store/constant';
-import auditLogService from '../../../services/auditLogService.js';
-import AuditLogItem from "../../../ui-component/audit-logs/AuditLogItem.jsx";
+import emailService from '../../../services/emailService.js'; // Importa o serviço de modelos de e-mail
+import EmailItem from '../../../ui-component/email-templates/EmailItem.jsx'; // Importa o componente EmailItem
 
 const itemsPerPageOptions = [
     { value: 10, label: '10' },
@@ -24,33 +20,30 @@ const itemsPerPageOptions = [
 ];
 
 const statusOptions = [
-    { value: '', label: 'All' },
-    { value: 'SUCCESS', label: 'SUCCESS' },
-    { value: 'FAILURE', label: 'FAILURE' },
+    { value: '', label: 'Todos' },
+    { value: 'PUBLISHED', label: 'Publicado' },
+    { value: 'DRAFT', label: 'Rascunho' },
+    // Adicione outros status se existirem na sua API
 ];
 
-export default function AuditLogsPage() {
+export default function EmailListPage() {
     const theme = useTheme();
     const mainCardRef = useRef(null);
     const [mainCardHeight, setMainCardHeight] = useState('100vh');
 
-    const [logs, setLogs] = useState([]);
-    const [totalLogs, setTotalLogs] = useState(0);
+    const [templates, setTemplates] = useState([]);
+    const [totalTemplates, setTotalTemplates] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(50);
-    const [userIdFilter, setUserIdFilter] = useState('');
-    const [actionFilter, setActionFilter] = useState('');
+    const [nameFilter, setNameFilter] = useState('');
+    const [slugFilter, setSlugFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
-    const [usernameFilter, setUsernameFilter] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const calculateMainCardHeight = () => {
         if (mainCardRef.current) {
             const rect = mainCardRef.current.getBoundingClientRect();
-            // Seu cálculo original, que funcionava, é mantido.
-            // O 20px no final é uma pequena margem/padding que seu layout MainLayout pode ter.
-            // Ajuste esse 20px se o card não estiver indo até o fim exato da tela.
             const availableHeight = window.innerHeight - rect.top - 20;
             setMainCardHeight(`${Math.max(300, availableHeight)}px`);
         }
@@ -67,33 +60,32 @@ export default function AuditLogsPage() {
         };
     }, []);
 
-    const fetchAuditLogs = async () => {
+    const fetchEmailTemplates = async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const { logs: fetchedLogs, totalCount } = await auditLogService.getAuditLogs({
+            const { templates: fetchedTemplates, totalCount } = await emailService.getEmailTemplates({
                 page: currentPage,
                 limit: itemsPerPage,
-                userId: userIdFilter,
-                action: actionFilter,
+                name: nameFilter,
+                slug: slugFilter,
                 status: statusFilter,
-                userName: usernameFilter,
             });
-            setLogs(fetchedLogs);
-            setTotalLogs(totalCount);
+            setTemplates(fetchedTemplates);
+            setTotalTemplates(totalCount);
         } catch (err) {
-            console.error("Failed to fetch audit logs:", err);
-            setError(err.message || 'Failed to fetch audit logs.');
-            setLogs([]);
-            setTotalLogs(0);
+            console.error("Failed to fetch email templates:", err);
+            setError(err.message || 'Falha ao carregar modelos de e-mail.');
+            setTemplates([]);
+            setTotalTemplates(0);
         } finally {
             setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchAuditLogs();
-    }, [currentPage, itemsPerPage, userIdFilter, actionFilter, statusFilter, usernameFilter]);
+        fetchEmailTemplates();
+    }, [currentPage, itemsPerPage, nameFilter, slugFilter, statusFilter]);
 
     const handlePageChange = (event, value) => {
         setCurrentPage(value);
@@ -108,29 +100,21 @@ export default function AuditLogsPage() {
         setCurrentPage(1);
     };
 
-    const auditLogFilterConfig = [
+    const emailTemplateFilterConfig = [
         {
-            name: 'userId',
-            label: 'ID do Usuário',
+            name: 'name',
+            label: 'Nome do Modelo',
             type: 'text',
-            value: userIdFilter,
-            onChange: (e) => setUserIdFilter(e.target.value),
-            props: { sx: { minWidth: 150 }, size: 'small' }
+            value: nameFilter,
+            onChange: (e) => setNameFilter(e.target.value),
+            props: { sx: { minWidth: 180 }, size: 'small' }
         },
         {
-            name: 'username',
-            label: 'Nome de Usuário',
+            name: 'slug',
+            label: 'Slug',
             type: 'text',
-            value: usernameFilter,
-            onChange: (e) => setUsernameFilter(e.target.value),
-            props: { sx: { minWidth: 150 }, size: 'small' }
-        },
-        {
-            name: 'action',
-            label: 'Ação',
-            type: 'text',
-            value: actionFilter,
-            onChange: (e) => setActionFilter(e.target.value),
+            value: slugFilter,
+            onChange: (e) => setSlugFilter(e.target.value),
             props: { sx: { minWidth: 150 }, size: 'small' }
         },
         {
@@ -149,38 +133,35 @@ export default function AuditLogsPage() {
             ref={mainCardRef}
             content={false}
             sx={{
-                height: mainCardHeight, // Usar a altura calculada
+                height: mainCardHeight,
                 display: 'flex',
                 flexDirection: 'column',
-                // Nenhuma necessidade de overflow aqui. A rolagem será interna ao DataDisplayArea.
             }}
         >
             {/* Barra de Filtros e Paginação */}
             <FilterAndPaginationBar
-                filterConfig={auditLogFilterConfig}
+                filterConfig={emailTemplateFilterConfig}
                 onApplyFilters={handleFilterChange}
-                applyButtonText="Aplicar"
+                applyButtonText="Aplicar Filtros"
                 applyButtonLoading={isLoading}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
                 itemsPerPage={itemsPerPage}
                 onItemsPerPageChange={handleItemsPerPageChange}
-                totalItems={totalLogs}
+                totalItems={totalTemplates}
                 itemsPerPageOptions={itemsPerPageOptions}
                 paginationLoading={isLoading}
             />
 
-            {/* Área de Exibição dos Dados (Logs) */}
+            {/* Área de Exibição dos Dados (Modelos de E-mail) */}
             <DataDisplayArea
                 isLoading={isLoading}
                 error={error}
-                hasData={logs.length > 0}
-                emptyMessage="Nenhum log encontrado com os critérios atuais."
+                hasData={templates.length > 0}
+                emptyMessage="Nenhum modelo de e-mail encontrado com os critérios atuais."
             >
-                {/* O conteúdo (logs.map) é passado diretamente como children.
-                    O DataDisplayArea se encarregará do padding e rolagem. */}
-                {logs.map((log) => (
-                    <AuditLogItem key={log.id} log={log} /> // Agora usando o componente modularizado
+                {templates.map((template) => (
+                    <EmailItem key={template.id} template={template} />
                 ))}
             </DataDisplayArea>
         </MainCard>
